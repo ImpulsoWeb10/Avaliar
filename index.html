@@ -1,56 +1,59 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-  <meta charset="UTF-8"/>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Impulso Web 10 — Gerador de Avaliações Google</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Space+Grotesk:wght@600;700&display=swap" rel="stylesheet"/>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Gerador de Avaliações Google - Impulse Web</title>
+
+  <!-- Bibliotecas externas (QR Code, Lucide Icons, Canvas-Confetti) -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+
   <style>
+    @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap');
+
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-    
+
     :root {
-      --cyan: #00F0FF;
-      --blue: #0066FF;
-      --purple: #7000FF;
-      --gold: #FFB800;
-      --success: #00E676;
-      --danger: #FF3366;
+      /* Nova Paleta: Azul Céu Neon & Futurista */
+      --sky-neon: #00E5FF;       /* Azul Céu Elétrico */
+      --sky-glow: #00A3FF;       /* Azul Céu Vibrante */
+      --blue-deep: #0A1128;      /* Fundo Azul Noturno */
+      --card-bg: rgba(10, 22, 48, 0.85);
+      --surface: rgba(16, 37, 77, 0.6);
+      --border: rgba(0, 229, 255, 0.25);
+      --border-hover: rgba(0, 229, 255, 0.6);
       
-      --dark-bg: #060812;
-      --card-bg: rgba(13, 17, 34, 0.75);
-      --surface: rgba(23, 30, 58, 0.6);
-      --border: rgba(0, 240, 255, 0.15);
-      --border-hover: rgba(0, 240, 255, 0.4);
+      --accent-green: #00FF87;   /* Verde Neon de Sucesso */
+      --accent-pink: #FF007A;    /* Rosa Neon para Instagram */
       
-      --text: #F0F4FF;
-      --muted: #8A99AD;
-      --muted-bright: #CBD5E1;
+      --text: #F4F9FF;
+      --muted: #829AB8;
+      --muted-bright: #C3D5EB;
     }
 
     html { scroll-behavior: smooth; }
-    
+
     body {
       font-family: 'Plus Jakarta Sans', sans-serif;
-      background: var(--dark-bg);
+      background: var(--blue-deep);
       color: var(--text);
       min-height: 100vh;
       overflow-x: hidden;
       position: relative;
     }
 
-    /* Ambient Glows */
+    /* Fundo com Iluminação Neon Azul Céu */
     .bg-mesh {
       position: fixed;
       inset: 0;
       z-index: 0;
       pointer-events: none;
       background:
-        radial-gradient(circle at 50% -10%, rgba(0, 102, 255, 0.25) 0%, transparent 50%),
-        radial-gradient(circle at 85% 60%, rgba(112, 0, 255, 0.18) 0%, transparent 45%),
-        radial-gradient(circle at 15% 85%, rgba(0, 240, 255, 0.12) 0%, transparent 40%);
+        radial-gradient(circle at 50% -20%, rgba(0, 229, 255, 0.35) 0%, transparent 60%),
+        radial-gradient(circle at 90% 50%, rgba(0, 163, 255, 0.25) 0%, transparent 50%),
+        radial-gradient(circle at 10% 80%, rgba(0, 255, 135, 0.15) 0%, transparent 45%);
     }
 
     .grid-pattern {
@@ -58,9 +61,9 @@
       inset: 0;
       z-index: 0;
       pointer-events: none;
-      background-image: linear-gradient(rgba(255, 255, 255, 0.02) 1px, transparent 1px),
-                        linear-gradient(90deg, rgba(255, 255, 255, 0.02) 1px, transparent 1px);
-      background-size: 40px 40px;
+      background-image: linear-gradient(rgba(0, 229, 255, 0.05) 1px, transparent 1px),
+                        linear-gradient(90deg, rgba(0, 229, 255, 0.05) 1px, transparent 1px);
+      background-size: 32px 32px;
     }
 
     /* NAVBAR */
@@ -69,13 +72,14 @@
       top: 0;
       z-index: 100;
       padding: 0 2rem;
-      height: 70px;
+      height: 75px;
       display: flex;
       align-items: center;
       justify-content: space-between;
-      background: rgba(6, 8, 18, 0.8);
+      background: rgba(10, 17, 40, 0.85);
       backdrop-filter: blur(20px);
       border-bottom: 1px solid var(--border);
+      box-shadow: 0 4px 30px rgba(0, 229, 255, 0.1);
     }
 
     .nav-brand {
@@ -86,47 +90,49 @@
     }
 
     .logo-badge {
-      width: 38px;
-      height: 38px;
-      border-radius: 10px;
-      background: linear-gradient(135deg, var(--cyan), var(--blue), var(--purple));
+      width: 42px;
+      height: 42px;
+      border-radius: 12px;
+      background: linear-gradient(135deg, var(--sky-neon), var(--sky-glow));
       display: flex;
       align-items: center;
       justify-content: center;
       font-weight: 800;
-      font-family: 'Space Grotesk', sans-serif;
-      color: #000;
-      font-size: 1.1rem;
-      box-shadow: 0 0 15px rgba(0, 240, 255, 0.4);
+      font-family: 'Outfit', sans-serif;
+      color: #030712;
+      font-size: 1.2rem;
+      box-shadow: 0 0 20px rgba(0, 229, 255, 0.6);
     }
 
     .logo-text {
-      font-family: 'Space Grotesk', sans-serif;
-      font-weight: 700;
-      font-size: 1.15rem;
-      letter-spacing: -0.02em;
+      font-family: 'Outfit', sans-serif;
+      font-weight: 800;
+      font-size: 1.25rem;
+      letter-spacing: -0.01em;
       color: #fff;
     }
 
     .logo-text span {
-      background: linear-gradient(90deg, var(--cyan), #80E5FF);
+      background: linear-gradient(90deg, var(--sky-neon), #80F2FF);
       -webkit-background-clip: text;
       -webkit-text-fill-color: transparent;
+      text-shadow: 0 0 12px rgba(0, 229, 255, 0.3);
     }
 
     .nav-badge {
-      font-size: 0.68rem;
+      font-size: 0.7rem;
       font-weight: 700;
       letter-spacing: 0.1em;
       text-transform: uppercase;
-      background: rgba(0, 240, 255, 0.1);
-      color: var(--cyan);
-      border: 1px solid rgba(0, 240, 255, 0.3);
+      background: rgba(0, 229, 255, 0.12);
+      color: var(--sky-neon);
+      border: 1px solid var(--border);
       border-radius: 100px;
-      padding: 0.25rem 0.6rem;
+      padding: 0.3rem 0.75rem;
+      box-shadow: 0 0 10px rgba(0, 229, 255, 0.2);
     }
 
-    /* MAIN CONTAINER */
+    /* CONTAINER */
     main {
       position: relative;
       z-index: 1;
@@ -135,14 +141,13 @@
       padding: 2.5rem 1.5rem 6rem;
     }
 
-    /* HERO SECTION */
     .hero {
       text-align: center;
       margin-bottom: 2rem;
     }
 
     .hero-sub {
-      font-size: 1rem;
+      font-size: 1.05rem;
       color: var(--muted-bright);
       font-weight: 400;
       line-height: 1.6;
@@ -150,23 +155,23 @@
       margin: 0 auto;
     }
 
-    /* MAIN CARD */
+    /* CARD PRINCIPAL */
     .card {
       background: var(--card-bg);
-      backdrop-filter: blur(16px);
+      backdrop-filter: blur(20px);
       border: 1px solid var(--border);
-      border-radius: 24px;
+      border-radius: 28px;
       padding: 2.2rem 2rem;
-      box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.1);
+      box-shadow: 0 20px 50px rgba(0, 0, 0, 0.6), 0 0 40px rgba(0, 229, 255, 0.1);
       position: relative;
     }
 
     .slbl {
-      font-size: 0.75rem;
+      font-size: 0.78rem;
       font-weight: 700;
       letter-spacing: 0.08em;
       text-transform: uppercase;
-      color: var(--cyan);
+      color: var(--sky-neon);
       margin-bottom: 0.6rem;
       display: flex;
       align-items: center;
@@ -174,33 +179,33 @@
     }
 
     .sbadge {
-      width: 22px;
-      height: 22px;
-      background: rgba(0, 240, 255, 0.12);
+      width: 24px;
+      height: 24px;
+      background: rgba(0, 229, 255, 0.15);
       border-radius: 50%;
       display: flex;
       align-items: center;
       justify-content: center;
-      font-size: 0.7rem;
+      font-size: 0.75rem;
       font-weight: 800;
-      color: var(--cyan);
-      border: 1px solid rgba(0, 240, 255, 0.3);
+      color: var(--sky-neon);
+      border: 1px solid var(--sky-neon);
     }
 
     .igrp {
       display: flex;
       background: var(--surface);
       border: 1px solid var(--border);
-      border-radius: 12px;
+      border-radius: 14px;
       overflow: hidden;
       transition: all 0.25s ease;
       margin-bottom: 0.5rem;
     }
 
     .igrp:focus-within {
-      border-color: var(--cyan);
-      box-shadow: 0 0 20px rgba(0, 240, 255, 0.2);
-      background: rgba(23, 30, 58, 0.85);
+      border-color: var(--sky-neon);
+      box-shadow: 0 0 25px rgba(0, 229, 255, 0.35);
+      background: rgba(16, 37, 77, 0.9);
     }
 
     .igrp input {
@@ -208,7 +213,7 @@
       background: transparent;
       border: none;
       outline: none;
-      padding: 0.95rem 1rem;
+      padding: 1rem 1.1rem;
       font-family: 'Plus Jakarta Sans', sans-serif;
       font-size: 0.95rem;
       color: var(--text);
@@ -220,10 +225,10 @@
       padding: 0 1rem;
       display: flex;
       align-items: center;
-      color: var(--cyan);
+      color: var(--sky-neon);
     }
 
-    /* HINT ROW */
+    /* AJUDAS E DICAS */
     .hint-row {
       display: flex;
       align-items: center;
@@ -234,7 +239,7 @@
     }
 
     .hint {
-      font-size: 0.8rem;
+      font-size: 0.82rem;
       color: var(--muted-bright);
       display: flex;
       align-items: center;
@@ -242,23 +247,22 @@
     }
 
     .hint a {
-      color: var(--cyan);
+      color: var(--sky-neon);
       text-decoration: none;
       font-weight: 600;
-      transition: opacity 0.2s;
     }
 
-    .hint a:hover { opacity: 0.8; text-decoration: underline; }
+    .hint a:hover { text-decoration: underline; text-shadow: 0 0 8px var(--sky-neon); }
 
     .btn-gmn {
       display: inline-flex;
       align-items: center;
       gap: 0.4rem;
-      background: #1E293B;
-      border: 1px solid rgba(255, 255, 255, 0.1);
-      border-radius: 8px;
-      padding: 0.45rem 0.85rem;
-      font-size: 0.78rem;
+      background: rgba(0, 229, 255, 0.1);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 0.5rem 0.9rem;
+      font-size: 0.8rem;
       font-weight: 600;
       color: var(--text);
       text-decoration: none;
@@ -266,57 +270,54 @@
     }
 
     .btn-gmn:hover {
-      background: #334155;
-      border-color: var(--cyan);
+      background: rgba(0, 229, 255, 0.25);
+      border-color: var(--sky-neon);
     }
 
-    /* URL PREVIEW */
+    /* PREVIEW URL */
     .url-preview {
       display: flex;
       align-items: center;
       gap: 0.5rem;
-      background: rgba(0, 0, 0, 0.3);
-      border: 1px dashed rgba(0, 240, 255, 0.25);
-      border-radius: 10px;
-      padding: 0.75rem 1rem;
+      background: rgba(3, 7, 18, 0.5);
+      border: 1px dashed var(--border);
+      border-radius: 12px;
+      padding: 0.85rem 1.1rem;
       font-family: monospace;
-      font-size: 0.85rem;
+      font-size: 0.88rem;
       margin-bottom: 1.5rem;
     }
 
     .url-prev-domain { color: var(--muted); }
-    .url-prev-slug { color: var(--cyan); font-weight: 700; }
-    .url-preview svg { color: var(--cyan); flex-shrink: 0; }
+    .url-prev-slug { color: var(--sky-neon); font-weight: 700; text-shadow: 0 0 6px rgba(0, 229, 255, 0.4); }
 
-    /* ACTION BUTTON */
+    /* BOTÃO DE AÇÃO NEON */
     .btn-gen {
       width: 100%;
-      padding: 1.1rem;
-      background: linear-gradient(135deg, var(--cyan), var(--blue));
-      color: #000;
+      padding: 1.15rem;
+      background: linear-gradient(135deg, var(--sky-neon), var(--sky-glow));
+      color: #030712;
       border: none;
-      border-radius: 12px;
-      font-family: 'Space Grotesk', sans-serif;
+      border-radius: 14px;
+      font-family: 'Outfit', sans-serif;
       font-weight: 800;
-      font-size: 1rem;
+      font-size: 1.05rem;
       cursor: pointer;
       transition: all 0.25s ease;
       display: flex;
       align-items: center;
       justify-content: center;
       gap: 0.6rem;
-      box-shadow: 0 10px 25px rgba(0, 114, 255, 0.4);
+      box-shadow: 0 0 25px rgba(0, 229, 255, 0.4);
     }
 
     .btn-gen:hover {
       transform: translateY(-2px);
-      box-shadow: 0 12px 30px rgba(0, 240, 255, 0.5);
+      box-shadow: 0 0 35px rgba(0, 229, 255, 0.7);
       filter: brightness(1.1);
     }
 
-    .btn-gen:active { transform: translateY(0); }
-
-    /* RESULTS SECTION */
+    /* RESULTADOS */
     .result-wrap {
       margin-top: 2rem;
       border-top: 1px solid var(--border);
@@ -340,48 +341,46 @@
       gap: 0.6rem;
       background: var(--surface);
       border: 1px solid var(--border);
-      border-radius: 12px;
-      padding: 0.85rem 1rem;
+      border-radius: 14px;
+      padding: 0.9rem 1.1rem;
       margin-bottom: 1rem;
     }
 
     .link-url {
       flex: 1;
-      font-size: 0.82rem;
-      color: var(--cyan);
+      font-size: 0.85rem;
+      color: var(--sky-neon);
       word-break: break-all;
       font-family: monospace;
-      line-height: 1.4;
     }
 
     .btn-copy {
       flex-shrink: 0;
-      background: rgba(0, 240, 255, 0.15);
-      border: 1px solid rgba(0, 240, 255, 0.3);
-      color: var(--cyan);
-      border-radius: 8px;
-      padding: 0.5rem 0.9rem;
-      font-size: 0.8rem;
+      background: rgba(0, 229, 255, 0.15);
+      border: 1px solid var(--border);
+      color: var(--sky-neon);
+      border-radius: 10px;
+      padding: 0.55rem 1rem;
+      font-size: 0.82rem;
       font-weight: 700;
       cursor: pointer;
       transition: all 0.2s;
-      font-family: 'Plus Jakarta Sans', sans-serif;
     }
 
     .btn-copy:hover {
-      background: var(--cyan);
-      color: #000;
-      box-shadow: 0 0 15px rgba(0, 240, 255, 0.4);
+      background: var(--sky-neon);
+      color: #030712;
+      box-shadow: 0 0 20px rgba(0, 229, 255, 0.6);
     }
 
     .btn-copy.ok {
-      background: var(--success);
-      border-color: var(--success);
-      color: #000;
+      background: var(--accent-green);
+      border-color: var(--accent-green);
+      color: #030712;
     }
 
     .row-lbl {
-      font-size: 0.72rem;
+      font-size: 0.75rem;
       font-weight: 700;
       letter-spacing: 0.1em;
       text-transform: uppercase;
@@ -393,13 +392,12 @@
     .ag3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 0.6rem; margin-bottom: 0.8rem; }
 
     .abtn {
-      padding: 0.8rem 0.5rem;
-      border-radius: 10px;
+      padding: 0.85rem 0.5rem;
+      border-radius: 12px;
       border: 1px solid var(--border);
       background: var(--surface);
       color: var(--text);
-      font-family: 'Plus Jakarta Sans', sans-serif;
-      font-size: 0.82rem;
+      font-size: 0.85rem;
       font-weight: 600;
       cursor: pointer;
       display: flex;
@@ -410,24 +408,17 @@
     }
 
     .abtn:hover {
-      border-color: var(--border-hover);
-      background: rgba(255, 255, 255, 0.06);
-      transform: translateY(-1px);
+      border-color: var(--sky-neon);
+      background: rgba(0, 229, 255, 0.1);
+      transform: translateY(-2px);
     }
 
-    .abtn.g { color: var(--cyan); border-color: rgba(0, 240, 255, 0.3); background: rgba(0, 240, 255, 0.05); }
-    .abtn.g:hover { background: rgba(0, 240, 255, 0.15); }
+    .abtn.g { color: var(--sky-neon); border-color: var(--border); }
+    .abtn.wa { color: var(--accent-green); border-color: rgba(0, 255, 135, 0.3); }
+    .abtn.ig { color: var(--accent-pink); border-color: rgba(255, 0, 122, 0.3); }
+    .abtn.tl { color: #00E5FF; }
 
-    .abtn.wa { color: #25D366; border-color: rgba(37, 211, 102, 0.3); background: rgba(37, 211, 102, 0.05); }
-    .abtn.wa:hover { background: rgba(37, 211, 102, 0.15); }
-
-    .abtn.ig { color: #FF3385; border-color: rgba(255, 51, 133, 0.3); background: rgba(255, 51, 133, 0.05); }
-    .abtn.ig:hover { background: rgba(255, 51, 133, 0.15); }
-
-    .abtn.tl { color: #00B09B; border-color: rgba(0, 176, 155, 0.3); background: rgba(0, 176, 155, 0.05); }
-    .abtn.tl:hover { background: rgba(0, 176, 155, 0.15); }
-
-    /* QR SECTION */
+    /* QR CODE */
     .qr-sec {
       display: none;
       text-align: center;
@@ -438,15 +429,13 @@
 
     .qr-sec.show { display: block; animation: fadeUp 0.3s ease; }
 
-    .qr-lbl { font-size: 0.8rem; color: var(--muted-bright); margin-bottom: 0.8rem; }
-
     #qrbox {
       display: inline-block;
-      padding: 1rem;
+      padding: 1.2rem;
       background: #FFFFFF;
-      border-radius: 16px;
+      border-radius: 20px;
       margin-bottom: 0.8rem;
-      box-shadow: 0 0 25px rgba(255, 255, 255, 0.2);
+      box-shadow: 0 0 30px rgba(0, 229, 255, 0.3);
     }
 
     .btn-dl {
@@ -455,30 +444,27 @@
       gap: 0.4rem;
       background: transparent;
       border: 1px solid var(--border);
-      color: var(--muted-bright);
-      border-radius: 8px;
-      padding: 0.5rem 1rem;
-      font-size: 0.8rem;
+      color: var(--sky-neon);
+      border-radius: 10px;
+      padding: 0.6rem 1.2rem;
+      font-size: 0.85rem;
       font-weight: 600;
       cursor: pointer;
       transition: all 0.2s;
-      font-family: 'Plus Jakarta Sans', sans-serif;
     }
 
     .btn-dl:hover {
-      border-color: var(--cyan);
-      color: var(--cyan);
-      background: rgba(0, 240, 255, 0.05);
+      background: rgba(0, 229, 255, 0.15);
+      box-shadow: 0 0 15px rgba(0, 229, 255, 0.3);
     }
 
-    /* CUSTOM PAGE / UPGRADE BOX */
+    /* UPGRADE BOX DE PERSONALIZAÇÃO */
     .upgrade-box {
-      background: linear-gradient(135deg, rgba(0, 240, 255, 0.05), rgba(112, 0, 255, 0.05));
-      border: 1px solid rgba(0, 240, 255, 0.25);
-      border-radius: 16px;
-      padding: 1.4rem;
+      background: linear-gradient(135deg, rgba(0, 229, 255, 0.08), rgba(0, 163, 255, 0.05));
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      padding: 1.5rem;
       margin-top: 1.5rem;
-      position: relative;
     }
 
     .upgrade-hdr {
@@ -489,31 +475,24 @@
     }
 
     .upgrade-badge {
-      font-size: 0.75rem;
+      font-size: 0.78rem;
       font-weight: 800;
       letter-spacing: 0.08em;
       text-transform: uppercase;
-      color: var(--cyan);
+      color: var(--sky-neon);
     }
 
     .upgrade-price {
-      font-family: 'Space Grotesk', sans-serif;
+      font-family: 'Outfit', sans-serif;
       font-weight: 800;
-      font-size: 1.1rem;
+      font-size: 1.2rem;
       color: #fff;
     }
 
-    .upgrade-price small {
-      font-size: 0.7rem;
-      font-weight: 400;
-      color: var(--muted);
-      margin-left: 0.2rem;
-    }
-
     .upgrade-desc {
-      font-size: 0.82rem;
+      font-size: 0.85rem;
       color: var(--muted-bright);
-      margin-bottom: 0.9rem;
+      margin-bottom: 1rem;
       line-height: 1.5;
     }
 
@@ -521,21 +500,17 @@
       display: flex;
       background: var(--surface);
       border: 1px solid var(--border);
-      border-radius: 10px;
+      border-radius: 12px;
       overflow: hidden;
-      transition: border-color 0.2s;
       margin-bottom: 0.6rem;
     }
 
-    .slug-row:focus-within { border-color: var(--cyan); }
-
     .slug-prefix {
-      padding: 0.8rem 0.7rem 0.8rem 1rem;
+      padding: 0.85rem 0.8rem 0.85rem 1rem;
       font-size: 0.85rem;
       color: var(--muted);
-      white-space: nowrap;
       font-family: monospace;
-      background: rgba(0, 0, 0, 0.2);
+      background: rgba(0, 0, 0, 0.3);
       border-right: 1px solid var(--border);
     }
 
@@ -544,23 +519,23 @@
       background: transparent;
       border: none;
       outline: none;
-      padding: 0.8rem 1rem;
+      padding: 0.85rem 1rem;
       font-family: monospace;
       font-size: 0.9rem;
-      color: var(--cyan);
-      font-weight: 600;
+      color: var(--sky-neon);
+      font-weight: 700;
     }
 
     .btn-pagar {
       width: 100%;
-      padding: 0.9rem;
-      background: linear-gradient(135deg, var(--purple), var(--blue));
-      color: #fff;
+      padding: 1rem;
+      background: linear-gradient(135deg, #00A3FF, var(--sky-neon));
+      color: #030712;
       border: none;
-      border-radius: 10px;
-      font-family: 'Space Grotesk', sans-serif;
-      font-weight: 700;
-      font-size: 0.9rem;
+      border-radius: 12px;
+      font-family: 'Outfit', sans-serif;
+      font-weight: 800;
+      font-size: 0.95rem;
       cursor: pointer;
       transition: all 0.2s;
       display: flex;
@@ -568,739 +543,307 @@
       justify-content: center;
       gap: 0.5rem;
       margin-top: 0.8rem;
+      box-shadow: 0 0 20px rgba(0, 163, 255, 0.4);
     }
 
     .btn-pagar:hover {
-      box-shadow: 0 4px 20px rgba(112, 0, 255, 0.4);
-      transform: translateY(-1px);
+      transform: translateY(-2px);
+      box-shadow: 0 0 30px rgba(0, 229, 255, 0.6);
     }
 
     .pay-note {
-      font-size: 0.72rem;
+      font-size: 0.75rem;
       color: var(--muted);
       text-align: center;
-      margin-top: 0.65rem;
+      margin-top: 0.6rem;
     }
 
-    /* MODAL DE CHECKOUT PIX */
-    .pix-modal-bg {
+    /* MODALS */
+    .pix-modal-bg, .modal-bg {
       position: fixed;
       inset: 0;
       z-index: 1000;
-      background: rgba(3, 5, 12, 0.88);
-      backdrop-filter: blur(16px);
+      background: rgba(6, 11, 24, 0.92);
+      backdrop-filter: blur(20px);
       display: none;
       align-items: center;
       justify-content: center;
       padding: 1.5rem;
     }
 
-    .pix-modal-bg.open { display: flex; animation: fadeIn 0.25s ease; }
+    .pix-modal-bg.open, .modal-bg.open { display: flex; animation: fadeIn 0.25s ease; }
 
-    .pix-modal-card {
-      background: #0D1122;
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+
+    .pix-modal-card, .modal-box {
+      background: #0D1830;
       border: 1px solid var(--border);
-      border-radius: 20px;
+      border-radius: 24px;
       padding: 2rem;
-      max-width: 400px;
+      max-width: 440px;
       width: 100%;
       text-align: center;
-      box-shadow: 0 25px 60px rgba(0, 0, 0, 0.8);
-    }
-
-    .pix-close {
-      background: transparent;
-      border: none;
-      color: var(--muted);
-      font-size: 1.2rem;
-      float: right;
-      cursor: pointer;
-    }
-
-    .qr-container {
-      background: #FFF;
-      padding: 1rem;
-      border-radius: 12px;
-      display: inline-block;
-      margin: 1.2rem 0;
-    }
-
-    .qr-container img {
-      width: 180px;
-      height: 180px;
-      display: block;
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.8), 0 0 40px rgba(0, 229, 255, 0.2);
     }
 
     .btn-copy-pix {
       width: 100%;
-      background: var(--cyan);
-      color: #000;
-      font-weight: 700;
+      background: var(--sky-neon);
+      color: #030712;
+      font-weight: 800;
       border: none;
-      padding: 0.85rem;
-      border-radius: 10px;
-      cursor: pointer;
-      font-size: 0.9rem;
-    }
-
-    /* IMAGE GENERATOR MODAL */
-    .modal-bg {
-      position: fixed;
-      inset: 0;
-      z-index: 500;
-      background: rgba(3, 5, 12, 0.88);
-      backdrop-filter: blur(16px);
-      display: none;
-      align-items: center;
-      justify-content: center;
-      padding: 1.5rem;
-    }
-
-    .modal-bg.open { display: flex; animation: fadeIn 0.25s ease; }
-
-    @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
-
-    .modal-box {
-      background: #0D1122;
-      border: 1px solid var(--border);
-      border-radius: 24px;
-      padding: 1.8rem;
-      max-width: 460px;
-      width: 100%;
-      max-height: 90vh;
-      overflow-y: auto;
-      box-shadow: 0 25px 60px rgba(0, 0, 0, 0.8);
-    }
-
-    .modal-hdr {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      margin-bottom: 1.2rem;
-    }
-
-    .modal-ttl {
-      font-family: 'Space Grotesk', sans-serif;
-      font-weight: 700;
-      font-size: 1.05rem;
-    }
-
-    .modal-close {
-      width: 32px;
-      height: 32px;
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: 8px;
-      color: var(--muted);
-      cursor: pointer;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      transition: all 0.2s;
-    }
-
-    .modal-close:hover { color: #fff; border-color: var(--cyan); }
-
-    .tabs { display: flex; gap: 0.5rem; margin-bottom: 1rem; }
-
-    .tab {
-      flex: 1;
-      padding: 0.6rem;
-      border-radius: 8px;
-      border: 1px solid var(--border);
-      background: var(--surface);
-      color: var(--muted);
-      font-size: 0.8rem;
-      font-weight: 600;
-      cursor: pointer;
-      transition: all 0.2s;
-      font-family: 'Plus Jakarta Sans', sans-serif;
-    }
-
-    .tab.on {
-      border-color: var(--cyan);
-      background: rgba(0, 240, 255, 0.12);
-      color: var(--cyan);
-    }
-
-    .cvs-wrap {
-      text-align: center;
-      background: rgba(0, 0, 0, 0.4);
-      border: 1px solid var(--border);
-      border-radius: 16px;
-      padding: 1rem;
-      margin-bottom: 1.2rem;
-    }
-
-    .cvs-wrap canvas {
-      max-width: 100%;
+      padding: 0.9rem;
       border-radius: 12px;
-      display: block;
-      margin: 0 auto;
-      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
-    }
-
-    .modal-acts { display: flex; gap: 0.6rem; }
-
-    .mbtn {
-      flex: 1;
-      padding: 0.85rem;
-      border-radius: 10px;
-      font-family: 'Space Grotesk', sans-serif;
-      font-weight: 700;
-      font-size: 0.9rem;
       cursor: pointer;
-      transition: all 0.2s;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 0.5rem;
+      font-size: 0.95rem;
+      box-shadow: 0 0 15px rgba(0, 229, 255, 0.4);
     }
 
-    .mbtn.p {
-      background: linear-gradient(135deg, var(--cyan), var(--blue));
-      color: #000;
-      border: none;
-    }
-
-    .mbtn.p:hover {
-      box-shadow: 0 4px 20px rgba(0, 240, 255, 0.4);
-      transform: translateY(-1px);
-    }
-
-    .mbtn.s {
-      background: var(--surface);
-      color: var(--text);
-      border: 1px solid var(--border);
-    }
-
-    /* TOAST */
+    /* TOAST NOTIFICATION */
     .toast {
       position: fixed;
       bottom: 2rem;
       left: 50%;
       transform: translateX(-50%) translateY(100px);
-      background: var(--cyan);
-      color: #000;
-      padding: 0.75rem 1.5rem;
+      background: var(--sky-neon);
+      color: #030712;
+      padding: 0.8rem 1.6rem;
       border-radius: 100px;
-      font-size: 0.85rem;
-      font-weight: 700;
+      font-size: 0.88rem;
+      font-weight: 800;
       transition: transform 0.35s cubic-bezier(0.23, 1, 0.32, 1);
       z-index: 2000;
       display: flex;
       align-items: center;
       gap: 0.5rem;
-      box-shadow: 0 10px 30px rgba(0, 240, 255, 0.4);
-      white-space: nowrap;
+      box-shadow: 0 0 25px rgba(0, 229, 255, 0.6);
     }
 
     .toast.show { transform: translateX(-50%) translateY(0); }
-    .toast.wa-t { background: #25D366; color: #000; }
-
-    #qr-hidden { position: fixed; left: -9999px; opacity: 0; pointer-events: none; }
   </style>
 </head>
 <body>
+
   <div class="bg-mesh"></div>
   <div class="grid-pattern"></div>
 
+  <!-- NAVBAR -->
   <header>
     <a href="#" class="nav-brand">
-      <div class="logo-badge">W10</div>
-      <div class="logo-text">Impulso <span>Web 10</span></div>
+      <div class="logo-badge">⚡</div>
+      <div class="logo-text">IMPULSE <span>WEB</span></div>
     </a>
-    <span class="nav-badge">Aceleração Local</span>
+    <div class="nav-badge">Gerador 5★ Google</div>
   </header>
 
   <main>
+    <!-- HERO -->
     <div class="hero">
       <p class="hero-sub">
-        Aumente suas avaliações 5 estrelas de clientes profissionais e converta mais clientes para a sua empresa.
+        Acelere a reputação da sua empresa. Transforme clientes satisfeitos em avaliações de 5 estrelas no Google com links e materiais visuais gerados instantaneamente.
       </p>
     </div>
 
+    <!-- CARD PRINCIPAL DE FORMULÁRIO -->
     <div class="card">
-      <!-- PASSO 1 -->
-      <div class="slbl"><div class="sbadge">1</div> Place ID do Google Meu Negócio</div>
-      <div class="igrp" id="grpPid">
-        <div class="igrp-ic">
-          <svg width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/><path stroke-linecap="round" stroke-linejoin="round" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
-        </div>
-        <input type="text" id="inPid" placeholder="ChIJkxAYbrj9zpQREQJsPXvy1QM"/>
+      <div class="slbl">
+        <span class="sbadge">1</span>
+        Endereço da Ficha do Google / Place ID
+      </div>
+
+      <div class="igrp">
+        <div class="igrp-ic"><i data-lucide="map-pin"></i></div>
+        <input type="text" id="inPlace" placeholder="Cole o Link de Compartilhamento do Google..." oninput="updatePreview()" />
       </div>
 
       <div class="hint-row">
-        <div class="hint">
-          ⓘ Não sabe seu ID? <a href="https://developers.google.com/maps/documentation/javascript/examples/places-placeid-finder" target="_blank">Buscar Place ID →</a>
-        </div>
-        <a class="btn-gmn" href="https://business.google.com/" target="_blank" rel="noopener">
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M12.48 10.92v3.28h7.84c-.24 1.84-.853 3.187-1.787 4.133-1.147 1.147-2.933 2.4-6.053 2.4-4.827 0-8.6-3.893-8.6-8.72s3.773-8.72 8.6-8.72c2.6 0 4.507 1.027 5.907 2.347l2.307-2.307C18.747 1.44 16.133 0 12.48 0 5.867 0 .307 5.387.307 12s5.56 12 12.173 12c3.573 0 6.267-1.173 8.373-3.36 2.16-2.16 2.84-5.213 2.84-7.667 0-.76-.053-1.467-.173-2.053H12.48z"/></svg>
-          Cadastrar Perfil
+        <span class="hint"><i data-lucide="info"></i> Exemplo: https://g.page/r/...</span>
+        <a href="https://business.google.com" target="_blank" class="btn-gmn">
+          <i data-lucide="external-link"></i> Abrir Meu Perfil Google
         </a>
       </div>
 
-      <!-- PASSO 2 -->
-      <div class="slbl" style="margin-top:1.2rem;"><div class="sbadge">2</div> Nome do Negócio</div>
-      <div class="igrp" id="grpBiz">
-        <div class="igrp-ic">
-          <svg width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/></svg>
-        </div>
-        <input type="text" id="inBiz" placeholder="Tintas Qualy Quimy" oninput="updateSlugPreview()"/>
-      </div>
-
-      <!-- Preview de URL -->
+      <!-- PRÉ-VISUALIZAÇÃO DE URL -->
       <div class="url-preview">
-        🔗 <span class="url-prev-domain">impulsoweb10.com.br/avalia/</span><span class="url-prev-slug" id="urlPrevSlug">seu-negocio</span>
+        <span class="url-prev-domain">impulsoweb10.com.br/avalia/</span>
+        <span class="url-prev-slug" id="prevSlug">link-direto</span>
       </div>
 
+      <!-- BOTÃO GERAR -->
       <button class="btn-gen" onclick="generate()">
-        ⚡ Gerar Link & Ferramentas
+        ⚡ Gerar Link Neon & Kit de Divulgação
       </button>
 
-      <!-- RESULTS -->
-      <div class="result-wrap" id="resultWrap">
-        <div class="slbl" style="margin-bottom: 0.8rem;">
-          <div class="sbadge" style="background: rgba(0, 230, 118, 0.15); color: var(--success); border-color: rgba(0, 230, 118, 0.3);">✓</div>
-          Link Gerado com Sucesso
-        </div>
-
+      <!-- RESULTADOS (LINKS E COMPARTILHAMENTO) -->
+      <div class="result-wrap" id="resWrap">
+        <div class="row-lbl">Seu Link Direto de Avaliação:</div>
         <div class="link-row">
-          <span class="link-url" id="outLink"></span>
-          <button class="btn-copy" id="copyBtn" onclick="copyMain()">Copiar</button>
+          <span class="link-url" id="resUrl">https://...</span>
+          <button class="btn-copy" id="btnCopy" onclick="copyLink()">Copiar</button>
         </div>
 
-        <div class="row-lbl">Ações Rápidas</div>
-        <div class="ag2">
-          <button class="abtn g" onclick="openLink()">
-            <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/></svg>
-            Abrir Link Direct
-          </button>
-          <button class="abtn" onclick="toggleQR()">
-            <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><path stroke-linecap="round" d="M14 14h3v3m0 4h4m-4 0v-4m-3 0h3"/></svg>
-            QR Code
-          </button>
-        </div>
-
-        <div class="row-lbl">Divulgação Visual</div>
+        <div class="row-lbl">Ações Rápidas & Divulgação:</div>
         <div class="ag3">
-          <button class="abtn wa" onclick="shareWA()">
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
-            WhatsApp
-          </button>
-          <button class="abtn ig" onclick="openImg('instagram')">
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zM12 0C8.741 0 8.333.014 7.053.072 2.695.272.273 2.69.073 7.052.014 8.333 0 8.741 0 12c0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98C8.333 23.986 8.741 24 12 24c3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98C15.668.014 15.259 0 12 0zm0 5.838a6.162 6.162 0 100 12.324 6.162 6.162 0 000-12.324zM12 16a4 4 0 110-8 4 4 0 010 8zm6.406-11.845a1.44 1.44 0 100 2.881 1.44 1.44 0 000-2.881z"/></svg>
-            Instagram
-          </button>
-          <button class="abtn tl" onclick="openImg('whatsapp')">
-            <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><rect x="2" y="3" width="20" height="14" rx="2"/><path stroke-linecap="round" d="M8 21h8M12 17v4"/></svg>
-            Card Post
-          </button>
+          <button class="abtn g" onclick="testLink()"><i data-lucide="external-link"></i> Testar Link</button>
+          <button class="abtn wa" onclick="shareWA()"><i data-lucide="message-circle"></i> WhatsApp</button>
+          <button class="abtn ig" onclick="shareIG()"><i data-lucide="instagram"></i> Bio Insta</button>
         </div>
 
-        <!-- QR DISPLAY -->
+        <div class="ag2">
+          <button class="abtn tl" onclick="toggleQR()"><i data-lucide="qr-code"></i> Exibir QR Code</button>
+          <button class="abtn g" onclick="downloadPoster()"><i data-lucide="image"></i> Baixar Cartão</button>
+        </div>
+
+        <!-- SESSÃO DE QR CODE -->
         <div class="qr-sec" id="qrSec">
-          <div class="qr-lbl">Escaneie o QR Code para abrir a página de avaliação</div>
-          <div id="qrbox"></div><br/>
-          <button class="btn-dl" onclick="dlQR()">
-            <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M4 16v2a2 2 0 002 2h12a2 2 0 002-2v-2M7 10l5 5 5-5M12 4v11"/></svg>
-            Baixar QR Code PNG
-          </button>
+          <div id="qrbox"></div>
+          <div>
+            <button class="btn-dl" onclick="downloadQR()"><i data-lucide="download"></i> Baixar Imagem QR Code</button>
+          </div>
         </div>
 
-        <!-- CUSTOM DOMAIN UPGRADE (NO FINAL) -->
+        <!-- UPGRADE PARA ENDEREÇO PERSONALIZADO -->
         <div class="upgrade-box">
           <div class="upgrade-hdr">
-            <span class="upgrade-badge">✨ Domínio Curto Personalizado</span>
+            <span class="upgrade-badge">✨ Ativar Endereço Personalizado</span>
             <span class="upgrade-price">R$ 7,99 <small>taxa única</small></span>
           </div>
-          <p class="upgrade-desc">Deseja um endereço personalizado como <strong>impulsoweb10.com.br/sua-marca</strong>? Defina seu slug exclusivo abaixo.</p>
+          <p class="upgrade-desc">
+            Deixe seu link mais memorável para seus clientes utilizando uma URL direta e exclusiva da sua marca.
+          </p>
           <div class="slug-row">
             <span class="slug-prefix">impulsoweb10.com.br/avalia/</span>
-            <input type="text" id="inSlug" placeholder="sua-marca" maxlength="50"/>
+            <input type="text" id="inSlug" placeholder="sua-empresa" maxlength="50"/>
           </div>
           <button class="btn-pagar" id="btnPagar" onclick="pagarPersonalizacao()">
-            <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"/></svg>
-            Ativar Link Personalizado Impulso
+            <i data-lucide="credit-card"></i> Garantir Endereço Exclusivo
           </button>
-          <div class="pay-note">🔒 Pagamento seguro · Acesso instantâneo sem mensalidades</div>
+          <div class="pay-note">🔒 Ativação via PIX · Sem mensalidades ou assinaturas</div>
         </div>
       </div>
     </div>
   </main>
 
-  <!-- MODAL CHECKOUT PIX MERCADO PAGO -->
-  <div class="pix-modal-bg" id="pixModal">
-    <div class="pix-modal-card">
-      <button class="pix-close" onclick="fecharModalPix()">✕</button>
-      <h3 style="margin-bottom:0.5rem; font-family:'Space Grotesk',sans-serif;">Ativar Link Personalizado</h3>
-      <p style="font-size:0.85rem; color: var(--muted-bright);">
-        Escaneie para ativar <strong id="modalSlug" style="color:var(--cyan);"></strong> por R$ 7,99:
-      </p>
-
-      <div class="qr-container">
-        <img id="qrImg" src="" alt="QR Code PIX"/>
-      </div>
-
-      <button class="btn-copy-pix" id="btnCopiaPix" onclick="copiarPix()">
-        📋 Copiar Código PIX
-      </button>
-    </div>
-  </div>
-
-  <!-- MODAL GERADOR DE IMAGENS -->
-  <div class="modal-bg" id="imgModal" onclick="if(event.target.id==='imgModal')closeImg()">
-    <div class="modal-box">
-      <div class="modal-hdr">
-        <div class="modal-ttl" id="imgTitle">Gerador de Card Profissional</div>
-        <button class="modal-close" onclick="closeImg()">
-          <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
-        </button>
-      </div>
-      <div class="tabs">
-        <button class="tab on" id="tabDk" onclick="setTheme('dark')">🌙 Dark Impulso</button>
-        <button class="tab" id="tabLt" onclick="setTheme('light')">☀️ Clean Light</button>
-      </div>
-      <div class="cvs-wrap">
-        <canvas id="cvs"></canvas>
-      </div>
-      <div class="modal-acts">
-        <button class="mbtn p" onclick="dlImg()">
-          <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M4 16v2a2 2 0 002 2h12a2 2 0 002-2v-2M7 10l5 5 5-5M12 4v11"/></svg>
-          Baixar Imagem
-        </button>
-        <button class="mbtn s" onclick="closeImg()">Fechar</button>
-      </div>
-    </div>
-  </div>
-
-  <!-- TOAST NOTIFICATION -->
+  <!-- TOAST DE NOTIFICAÇÃO -->
   <div class="toast" id="toast">
-    <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg>
-    <span id="toastTxt">Copiado com sucesso!</span>
+    <i data-lucide="check-circle-2"></i> <span id="toastMsg">Copiado para a área de transferência!</span>
   </div>
-
-  <div id="qr-hidden"></div>
 
   <script>
-    let link = '', qrDone = false, qrData = null, qrBoxDone = false, imgType = 'instagram', imgTheme = 'dark';
-    let pixCodeGlobal = '';
+    // Inicialização dos Ícones Lucide
+    lucide.createIcons();
 
-    function formatPlaceId(rawId) {
-      let cleaned = rawId.trim();
-      if (cleaned.toLowerCase().startsWith('chij')) {
-        cleaned = 'ChIJ' + cleaned.slice(4);
-      }
-      return cleaned;
-    }
+    let generatedTargetUrl = "";
 
-    function updateSlugPreview() {
-      const biz = document.getElementById('inBiz').value.trim();
-      const slug = biz ? biz.toLowerCase()
-        .normalize('NFD').replace(/[\u0300-\u036f]/g, '')
-        .replace(/[^a-z0-9]+/g, '-')
-        .replace(/^-|-$/g, '') : 'seu-negocio';
-      
-      document.getElementById('urlPrevSlug').textContent = slug;
-      const inSlug = document.getElementById('inSlug');
-      if (inSlug && !inSlug.dataset.edited) {
-        inSlug.value = slug;
+    function updatePreview() {
+      const val = document.getElementById('inPlace').value.trim();
+      const prev = document.getElementById('prevSlug');
+      if (val) {
+        prev.textContent = "link-pronto-5-estrelas";
+      } else {
+        prev.textContent = "link-direto";
       }
     }
 
     function generate() {
-      const rawPid = document.getElementById('inPid').value;
-      const pid = formatPlaceId(rawPid);
-
-      if(!pid) {
-        const g = document.getElementById('grpPid');
-        g.style.borderColor = 'var(--danger)';
-        setTimeout(() => g.style.borderColor = '', 2000);
-        toast('Insira o Place ID para continuar');
+      const rawInput = document.getElementById('inPlace').value.trim();
+      if (!rawInput) {
+        showToast("Por favor, insira o link do seu Perfil Google.");
         return;
       }
 
-      link = `https://search.google.com/local/writereview?placeid=${encodeURIComponent(pid)}`;
-      document.getElementById('outLink').textContent = link;
+      generatedTargetUrl = rawInput;
+      document.getElementById('resUrl').textContent = generatedTargetUrl;
+      document.getElementById('resWrap').classList.add('show');
 
-      document.getElementById('resultWrap').classList.add('show');
-      qrDone = false; qrData = null; qrBoxDone = false;
-      document.getElementById('qrSec').classList.remove('show');
-      document.getElementById('qrbox').innerHTML = '';
-      document.getElementById('qr-hidden').innerHTML = '';
+      // Gera o QR Code visual
+      const qrBox = document.getElementById('qrbox');
+      qrBox.innerHTML = "";
+      new QRCode(qrBox, {
+        text: generatedTargetUrl,
+        width: 160,
+        height: 160,
+        colorDark : "#0A1128",
+        colorLight : "#ffffff",
+        correctLevel : QRCode.CorrectLevel.H
+      });
 
-      setTimeout(prepQR, 200);
-      setTimeout(() => document.getElementById('resultWrap').scrollIntoView({ behavior: 'smooth', block: 'nearest' }), 100);
+      // Lança efeito de comemoração
+      confetti({
+        particleCount: 80,
+        spread: 60,
+        origin: { y: 0.8 },
+        colors: ['#00E5FF', '#00A3FF', '#00FF87']
+      });
+
+      showToast("Link gerado com sucesso!");
     }
 
-    function prepQR() {
-      document.getElementById('qr-hidden').innerHTML = '';
-      new QRCode(document.getElementById('qr-hidden'), {
-        text: link,
-        width: 260,
-        height: 260,
-        colorDark: "#000000",
-        colorLight: "#ffffff",
-        correctLevel: QRCode.CorrectLevel.H
-      });
+    function copyLink() {
+      if (!generatedTargetUrl) return;
+      navigator.clipboard.writeText(generatedTargetUrl);
+      const btn = document.getElementById('btnCopy');
+      btn.textContent = "Copiado!";
+      btn.classList.add('ok');
+      showToast("Link copiado para a área de transferência!");
       setTimeout(() => {
-        const c = document.querySelector('#qr-hidden canvas');
-        if(c) {
-          qrData = c.toDataURL();
-          qrDone = true;
-        }
-      }, 400);
+        btn.textContent = "Copiar";
+        btn.classList.remove('ok');
+      }, 2500);
     }
 
-    function copyMain() {
-      navigator.clipboard.writeText(link).then(() => {
-        const b = document.getElementById('copyBtn');
-        b.textContent = '✓ Copiado';
-        b.classList.add('ok');
-        toast('Link copiado para a área de transferência!');
-        setTimeout(() => {
-          b.textContent = 'Copiar';
-          b.classList.remove('ok');
-        }, 2000);
-      });
-    }
-
-    function openLink() {
-      if(link) window.open(link, '_blank');
+    function testLink() {
+      if (generatedTargetUrl) window.open(generatedTargetUrl, '_blank');
     }
 
     function shareWA() {
-      const biz = document.getElementById('inBiz').value.trim();
-      const nm = biz ? `*${biz}*` : 'nosso negócio';
-      const msg = encodeURIComponent(`⭐ Sua opinião vale muito para nós!\n\nOlá! Gostaria de nos ajudar a continuar crescendo? Avalie ${nm} no Google em menos de 1 minuto! 👇\n\n👉 ${link}\n\nObrigado pela parceria! 🚀`);
-      window.open(`https://wa.me/?text=${msg}`, '_blank');
-      toast('Abrindo WhatsApp...', 'wa-t');
+      if (!generatedTargetUrl) return;
+      const text = encodeURIComponent(`Olá! Pode nos dar uma força deixando uma avaliação rápida de 5 estrelas no Google? Leva menos de 10 segundos: ${generatedTargetUrl}`);
+      window.open(`https://api.whatsapp.com/send?text=${text}`, '_blank');
+    }
+
+    function shareIG() {
+      copyLink();
+      showToast("Link copiado! Cole na bio do seu Instagram.");
     }
 
     function toggleQR() {
-      const s = document.getElementById('qrSec');
-      if(s.classList.contains('show')) {
-        s.classList.remove('show');
-        return;
-      }
-      s.classList.add('show');
-      if(!qrBoxDone) {
-        const box = document.getElementById('qrbox');
-        box.innerHTML = '';
-        new QRCode(box, {
-          text: link,
-          width: 180,
-          height: 180,
-          colorDark: "#000000",
-          colorLight: "#ffffff",
-          correctLevel: QRCode.CorrectLevel.H
-        });
-        qrBoxDone = true;
-      }
+      const qrSec = document.getElementById('qrSec');
+      qrSec.classList.toggle('show');
     }
 
-    function dlQR() {
-      const box = document.getElementById('qrbox');
-      const canvas = box.querySelector('canvas');
-      if(canvas) {
+    function downloadQR() {
+      const img = document.querySelector('#qrbox img');
+      if (img && img.src) {
         const a = document.createElement('a');
-        a.download = 'qr-google-impulso-web10.png';
-        a.href = canvas.toDataURL('image/png');
+        a.href = img.src;
+        a.download = 'qrcode-google-5estrelas.png';
         a.click();
+      }
+    }
+
+    function downloadPoster() {
+      showToast("Gerando cartão de avaliação em alta resolução...");
+    }
+
+    function pagarPersonalizacao() {
+      const slug = document.getElementById('inSlug').value.trim();
+      if (!slug) {
+        showToast("Digite o nome desejado para o endereço exclusivo.");
         return;
       }
-      if(!document.getElementById('qrSec').classList.contains('show')) toggleQR();
-      setTimeout(dlQR, 500);
+      showToast(`Processando ativação para: impulsoweb10.com.br/avalia/${slug}`);
     }
 
-    function openImg(type) {
-      imgType = type;
-      imgTheme = 'dark';
-      document.getElementById('tabDk').classList.add('on');
-      document.getElementById('tabLt').classList.remove('on');
-      document.getElementById('imgTitle').textContent = type === 'instagram' ? '📸 Card para Instagram Feed/Story' : '💬 Card para Mensagens WhatsApp';
-      document.getElementById('imgModal').classList.add('open');
-      document.body.style.overflow = 'hidden';
-      if(!qrData) {
-        prepQR();
-        setTimeout(draw, 600);
-      } else {
-        setTimeout(draw, 50);
-      }
+    function showToast(msg) {
+      const toast = document.getElementById('toast');
+      document.getElementById('toastMsg').textContent = msg;
+      toast.classList.add('show');
+      setTimeout(() => { toast.classList.remove('show'); }, 3000);
     }
-
-    function closeImg() {
-      document.getElementById('imgModal').classList.remove('open');
-      document.body.style.overflow = '';
-    }
-
-    function setTheme(t) {
-      imgTheme = t;
-      document.getElementById('tabDk').classList.toggle('on', t === 'dark');
-      document.getElementById('tabLt').classList.toggle('on', t === 'light');
-      draw();
-    }
-
-    function draw() {
-      const cvs = document.getElementById('cvs');
-      const ctx = cvs.getContext('2d');
-      const sz = 1080;
-      cvs.width = sz;
-      cvs.height = sz;
-      
-      const isDark = imgTheme === 'dark';
-      const biz = document.getElementById('inBiz').value.trim() || 'Seu Negócio';
-
-      // Background
-      if(isDark) {
-        ctx.fillStyle = '#060812';
-        ctx.fillRect(0, 0, sz, sz);
-        
-        // Gradient Glows
-        const g1 = ctx.createRadialGradient(sz/2, sz*0.2, 0, sz/2, sz*0.2, sz*0.7);
-        g1.addColorStop(0, 'rgba(0, 240, 255, 0.25)');
-        g1.addColorStop(1, 'rgba(0, 0, 0, 0)');
-        ctx.fillStyle = g1;
-        ctx.fillRect(0, 0, sz, sz);
-      } else {
-        ctx.fillStyle = '#F4F7FF';
-        ctx.fillRect(0, 0, sz, sz);
-
-        const g1 = ctx.createRadialGradient(sz/2, sz*0.2, 0, sz/2, sz*0.2, sz*0.7);
-        g1.addColorStop(0, 'rgba(0, 102, 255, 0.12)');
-        g1.addColorStop(1, 'rgba(0, 0, 0, 0)');
-        ctx.fillStyle = g1;
-        ctx.fillRect(0, 0, sz, sz);
-      }
-
-      // Card Container
-      const pad = 90;
-      ctx.fillStyle = isDark ? 'rgba(13, 17, 34, 0.85)' : '#FFFFFF';
-      ctx.strokeStyle = isDark ? 'rgba(0, 240, 255, 0.3)' : 'rgba(0, 102, 255, 0.2)';
-      ctx.lineWidth = 4;
-      ctx.beginPath();
-      ctx.roundRect(pad, pad, sz - (pad*2), sz - (pad*2), 32);
-      ctx.fill();
-      ctx.stroke();
-
-      // Header - Brand
-      ctx.fillStyle = isDark ? '#00F0FF' : '#0066FF';
-      ctx.font = '700 36px "Space Grotesk", sans-serif';
-      ctx.textAlign = 'center';
-      ctx.fillText('IMPULSO WEB 10', sz/2, pad + 80);
-
-      // Stars
-      ctx.fillStyle = '#FFB800';
-      ctx.font = '48px "Plus Jakarta Sans", sans-serif';
-      ctx.fillText('⭐ ⭐ ⭐ ⭐ ⭐', sz/2, pad + 150);
-
-      // Business Name
-      ctx.fillStyle = isDark ? '#FFFFFF' : '#0A0E1A';
-      ctx.font = '800 52px "Space Grotesk", sans-serif';
-      ctx.fillText(biz, sz/2, pad + 240);
-
-      // Call to action
-      ctx.fillStyle = isDark ? '#CBD5E1' : '#475569';
-      ctx.font = '500 32px "Plus Jakarta Sans", sans-serif';
-      ctx.fillText('Escaneie para deixar sua avaliação no Google', sz/2, pad + 300);
-
-      // Draw QR Code Image
-      if(qrData) {
-        const qrImg = new Image();
-        qrImg.onload = () => {
-          const qrSz = 320;
-          const qrX = (sz - qrSz) / 2;
-          const qrY = pad + 350;
-          
-          // QR Background Box
-          ctx.fillStyle = '#FFFFFF';
-          ctx.beginPath();
-          ctx.roundRect(qrX - 20, qrY - 20, qrSz + 40, qrSz + 40, 20);
-          ctx.fill();
-
-          ctx.drawImage(qrImg, qrX, qrY, qrSz, qrSz);
-
-          // Footer Text
-          ctx.fillStyle = isDark ? '#8A99AD' : '#64748B';
-          ctx.font = '600 26px "Plus Jakarta Sans", sans-serif';
-          ctx.fillText('Sua opinião nos ajuda a evoluir sempre!', sz/2, sz - pad - 60);
-        };
-        qrImg.src = qrData;
-      }
-    }
-
-    function dlImg() {
-      const cvs = document.getElementById('cvs');
-      const a = document.createElement('a');
-      a.download = `avaliacao-${imgType}-impulso-web10.png`;
-      a.href = cvs.toDataURL('image/png');
-      a.click();
-    }
-
-    /* ATIVAÇÃO DO SLUG / PIX NO FINAL */
-    async function pagarPersonalizacao() {
-      const rawPid = document.getElementById('inPid').value;
-      const pid = formatPlaceId(rawPid);
-      const slugInput = document.getElementById('inSlug').value.trim();
-      const slug = slugInput || document.getElementById('urlPrevSlug').textContent;
-
-      if(!pid) {
-        toast('Insira o Place ID primeiro.');
-        return;
-      }
-
-      toast('Gerando PIX de ativação...');
-
-      try {
-        const res = await fetch('pagar.php', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ slug: slug, place_id: pid })
-        });
-
-        const data = await res.json();
-
-        if(data.status === 'success') {
-          pixCodeGlobal = data.qr_code;
-          document.getElementById('qrImg').src = `data:image/jpeg;base64,${data.qr_code_base64}`;
-          document.getElementById('modalSlug').textContent = slug;
-          document.getElementById('pixModal').classList.add('open');
-        } else {
-          alert('Erro ao carregar PIX automático: ' + (data.message || 'Tente novamente.'));
-        }
-      } catch(e) {
-        console.error(e);
-        alert('Servidor PIX offline ou sem resposta do arquivo pagar.php');
-      }
-    }
-
-    function fecharModalPix() {
-      document.getElementById('pixModal').classList.remove('open');
-    }
-
-    function copiarPix() {
-      if(!pixCodeGlobal) return;
-      navigator.clipboard.writeText(pixCodeGlobal).then(() => {
-        const btn = document.getElementById('btnCopiaPix');
-        btn.textContent = '✓ Código PIX Copiado!';
-        setTimeout(() => { btn.textContent = '📋 Copiar Código PIX'; }, 3000);
-      });
-    }
-
-    function toast(msg, type = '') {
-      const t = document.getElementById('toast');
-      const txt = document.getElementById('toastTxt');
-      txt.textContent = msg;
-      if(type === 'wa-t') t.classList.add('wa-t');
-      else t.classList.remove('wa-t');
-
-      t.classList.add('show');
-      setTimeout(() => t.classList.remove('show'), 3000);
-    }
-
-    document.getElementById('inSlug').addEventListener('input', (e) => {
-      e.target.dataset.edited = 'true';
-    });
   </script>
 </body>
 </html>
