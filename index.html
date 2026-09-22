@@ -5,7 +5,6 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Avalia — Impulso Web 10</title>
   <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet"/>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
     :root {
@@ -101,21 +100,23 @@
     .pg-err { font-size: 0.8rem; color: var(--red); margin-bottom: 0.5rem; display: none; }
     .pg-err.show { display: block; }
     
-    /* MODAL */
+    /* ESTILOS DA MODAL PIX */
     .modal-bg { position: fixed; inset: 0; z-index: 500; background: rgba(0,0,0,0.85); backdrop-filter: blur(12px); display: none; align-items: center; justify-content: center; padding: 1.5rem; }
     .modal-bg.open { display: flex; animation: fadeIn 0.2s ease; }
     .modal-box { background: var(--card); border: 1px solid var(--border-glow); border-radius: 20px; padding: 1.75rem; max-width: 420px; width: 100%; text-align: center; }
     .modal-hdr { display: flex; align-items: center; justify-content: space-between; margin-bottom: 1rem; }
     .modal-ttl { font-family: 'Syne', sans-serif; font-weight: 700; font-size: 1.05rem; }
-    .modal-close { background: var(--surface); border: 1px solid var(--border); border-radius: 8px; color: var(--muted2); width: 32px; height: 32px; cursor: pointer; }
+    .modal-close { background: var(--surface); border: 1px solid var(--border); border-radius: 8px; color: var(--muted2); width: 32px; height: 32px; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 0.9rem; }
     .mbtn { width: 100%; padding: 0.85rem; border-radius: 10px; font-family: 'Syne', sans-serif; font-weight: 700; font-size: 0.9rem; cursor: pointer; transition: all 0.2s; border: none; }
     .mbtn.p { background: var(--cyan); color: #000; }
     .spin { animation: spin 1s linear infinite; }
     @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+    @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
   </style>
 </head>
 <body>
   <div class="bg-mesh"></div>
+  
   <nav>
     <div class="nav-logo">
       <div class="logo-badge"></div>
@@ -178,13 +179,28 @@
   <script>
     let link = '';
 
+    // Sanitiza e formata o Place ID digitado
+    function formatPlaceId(rawId) {
+      let cleaned = rawId.trim();
+      if (cleaned.toLowerCase().startsWith('chij')) {
+        cleaned = 'ChIJ' + cleaned.slice(4);
+      }
+      return cleaned;
+    }
+
+    // Gera o link direto de avaliação
     function generate() {
-      const pid = document.getElementById('inPid').value.trim();
+      const rawPid = document.getElementById('inPid').value;
       const biz = document.getElementById('inBiz').value.trim();
       
-      if(!pid) return alert('Por favor, informe o Place ID ou Link do Google');
+      if (!rawPid.trim()) {
+        alert('Por favor, informe o Place ID ou o Link do Google.');
+        return;
+      }
 
-      if(pid.startsWith('http')) {
+      const pid = formatPlaceId(rawPid);
+
+      if (pid.startsWith('http://') || pid.startsWith('https://')) {
         link = pid;
       } else {
         link = `https://search.google.com/local/writereview?placeid=${encodeURIComponent(pid)}`;
@@ -192,19 +208,24 @@
 
       document.getElementById('outLink').textContent = link;
       
-      if(biz) {
-        const slug = biz.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
+      if (biz) {
+        const slug = biz.toLowerCase()
+          .normalize('NFD').replace(/[\u0300-\u036f]/g, '') // remove acentos
+          .replace(/[^a-z0-9]+/g, '-')
+          .replace(/^-|-$/g, '');
         document.getElementById('inSlug').value = slug;
       }
 
       document.getElementById('resultWrap').classList.add('show');
     }
 
+    // Copia o link padrão
     function copyMain() {
-      navigator.clipboard.writeText(link).then(() => alert('Link copiado!'));
+      if (!link) return;
+      navigator.clipboard.writeText(link).then(() => alert('Link copiado com sucesso!'));
     }
 
-    // INTEGRAÇÃO PASSO 4 - CHAMADA DE CHECKOUT REAL VIA PAGAR.PHP
+    // Chamada da API de Checkout via pagar.php
     async function pagarPersonalizacao() {
       const slugInput = document.getElementById('inSlug');
       const slug = slugInput ? slugInput.value.trim() : '';
@@ -257,6 +278,7 @@
       }
     }
 
+    // Exibe a modal do PIX
     function exibirModalPix(codePix, imgBase64, slug) {
       let modal = document.getElementById('pixModal');
       if (!modal) {
@@ -289,17 +311,19 @@
           </div>
 
           <p style="font-size: 0.75rem; color: var(--muted);">
-            Após a confirmação do pagamento, o link será liberado.
+            Após a confirmação do pagamento, o link será ativado automaticamente.
           </p>
         </div>
       `;
     }
 
+    // Fecha a modal
     function fecharModalPix() {
       const modal = document.getElementById('pixModal');
       if (modal) modal.classList.remove('open');
     }
 
+    // Copia a chave PIX
     function copiarCodigoPix(codigo) {
       navigator.clipboard.writeText(codigo).then(() => {
         const btn = document.getElementById('btnCopiaPix');
